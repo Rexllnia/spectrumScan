@@ -13,6 +13,7 @@ extern pthread_mutex_t g_mutex,g_finished_device_list_mutex;
 extern sem_t g_semaphore;
 __u32 g_ap_instant;
 static sem_t receive_finish_semaphore;
+extern pthread_mutex_t g_dev_cmd_mutex;
 
 int spctrm_scn_tipc_send_start_msg(struct device_list *list,int wait_sec)
 {
@@ -251,9 +252,11 @@ void *spctrm_scn_tipc_thread()
             SPCTRM_SCN_DBG_FILE("\nSERVER_TYPE_GET_REPLY %x",head.instant);
             
             if (sizeof(time_t) > 4) {
-                SPCTRM_SCN_DBG_FILE("\nSERVER_TYPE_GET_REPLY TIME %lld",head.timestamp);
+                SPCTRM_SCN_DBG_FILE("\nSERVER_TYPE_GET_REPLY TIME %lld\r\n",head.timestamp);
+                SPCTRM_SCN_DBG_FILE("\ncurrent TIME %lld\r\n",g_current_time);
             } else {
-                SPCTRM_SCN_DBG_FILE("\nSERVER_TYPE_GET_REPLY TIME %ld",head.timestamp);
+                SPCTRM_SCN_DBG_FILE("\nSERVER_TYPE_GET_REPLY TIME %ld\r\n",head.timestamp);
+                SPCTRM_SCN_DBG_FILE("\ncurrent TIME %ld\r\n",g_current_time);
             }
             
             if (head.timestamp == g_current_time) {
@@ -265,6 +268,7 @@ void *spctrm_scn_tipc_thread()
                 spctrm_scn_tipc_send(head.instant,SERVER_TYPE_GET_REPLY,sizeof(g_channel_info_5g),(char *)g_channel_info_5g);
             }
         } else if (head.type == SERVER_TYPE_SCAN) {
+            g_ap_instant = head.instant;
             g_current_time = head.timestamp;
             SPCTRM_SCN_DBG_FILE("\nSERVER_TYPE_SCAN");
             while (1) {
@@ -324,5 +328,13 @@ static void server_type_scan_reply_cb(tipc_recv_packet_head_t *head,char *pkt)
             }
         }
     }
+    /* update g_finish_device_list */
+    memcpy(&g_finished_device_list,&g_device_list,sizeof(struct device_list));
     pthread_mutex_unlock(&g_finished_device_list_mutex);
+
+    /* upload to MACC */
+    pthread_mutex_lock(&g_dev_cmd_mutex);
+    system("dev_sta get -m spectrumScan");
+    pthread_mutex_unlock(&g_dev_cmd_mutex);
+
 }

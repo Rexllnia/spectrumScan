@@ -45,6 +45,7 @@ int g_stream_num;
 struct device_list g_finished_device_list;
 struct device_list g_device_list;
 extern char g_wds_bss[16];
+extern uint8_t g_band_support;
 
 static struct uloop_timeout retry;
 static struct uloop_timeout status_timer;
@@ -1156,7 +1157,10 @@ static int get(struct ubus_context *ctx, struct ubus_object *obj,
 static void mode_switch_notify(struct ubus_context *ctx, struct ubus_event_handler *ev,
                      const char *type, struct blob_attr *msg)
 {
+    tipc_close();
     system("rm /etc/spectrum_scan_cache");
+    system("echo "" > /etc/spectrum_scan/spctrm_scn_2g_device_list.json");
+    system("echo "" > /etc/spectrum_scan/saved_channel_info.json");
     system("/etc/init.d/spectrum_scan restart");
 }
 
@@ -1217,15 +1221,17 @@ static void server_main(void)
     int ret;
     uint32_t id;
     struct ubus_object *dbg_obj;
-
-    if (g_mode == AP_MODE) {
-        ret = ubus_add_object(ctx, &channel_score_object);
-        if (ret) {
-            fprintf(stderr, "Failed to add object: %s\n", ubus_strerror(ret));
-            return;
+#ifdef SPECTRUM_SCAN_5G
+    if (g_band_support & SUPPORT_5G) {
+        if (g_mode == AP_MODE) {
+            ret = ubus_add_object(ctx, &channel_score_object);
+            if (ret) {
+                fprintf(stderr, "Failed to add object: %s\n", ubus_strerror(ret));
+                return;
+            }
         }
     }
-
+#endif
     dbg_obj = dbg_get_ubus_object();
     if (dbg_obj == NULL) {
         return;
@@ -1293,9 +1299,8 @@ void spctrm_scn_ubus_thread()
 
     ctx->connection_lost = spctrm_scn_ubus_connection_lost;
     ubus_add_uloop(ctx);
-#ifdef SPCTRM_SCN24
-    spctrm_scn24_uloop(ctx);
-    
+#ifdef SPECTRUM_SCAN_2G
+    spctrm_scn_2g_uloop(ctx);
 #endif
     server_main();
 

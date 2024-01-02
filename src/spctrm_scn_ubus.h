@@ -13,9 +13,9 @@
 #include "spctrm_scn_config.h"
 #include "spctrm_scn_dev.h"
 #include "spctrm_scn_tipc.h"
-// #define SPCTRM_SCN24
-#ifdef SPCTRM_SCN24
-#include "spctrm_scn24_uloop.h"
+// #define SPECTRUM_SCAN_2G
+#ifdef SPECTRUM_SCAN_2G
+#include "spctrm_scn_2g_uloop.h"
 #endif
 
 

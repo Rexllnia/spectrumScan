@@ -1,7 +1,7 @@
 #编框架组件 只编译出.o 无需编译成 可执行文件
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/package.mk
-
+include $(TOPDIR)/.config
 #拓展通配符 在此意为src下所有的.c
 SRCS := $(wildcard *.c)
 LIBS := $(wildcard *.a)
@@ -9,6 +9,10 @@ LIBS := $(wildcard *.a)
 OBJS := $(patsubst %.c,%.o,$(SRCS))
 
 LDFLAGS += -L$(STAGING_DIR)/usr/lib -ljson-c -lubox -luci -lpthread -lubus -ldebug -lufplug -lunifyframe
+ifeq ($(CONFIG_SPECTRUM_SCAN_REDBS_ENABLE),y)
+LDFLAGS += -lhiredis -lrgproto
+EXTRA_FLAGS += -DSPECTRUM_SCAN_REDBS_ENABLE
+endif
 
 EXECUTABLE := show_apcli_enable
 PKG_ROOT_PATH_UF = $(STAGING_DIR)/usr/lib/ufplugins
@@ -23,6 +27,6 @@ CC += -g -fno-limit-debug-info -fsanitize=address -fno-omit-frame-pointer -fsani
 
 all: $(OBJS)
 # 编译.o文件
-	$(CC)  -c $(CFLAGS) $(LDFLAGS) $(SRCS) 
-	$(CC) $(OBJS) $(LDFLAGS) $(LIBS) -o show_apcli_enable.elf
+	$(CC)  -c $(CFLAGS) $(LDFLAGS) $(EXTRA_FLAGS) $(SRCS) 
+	$(CC) $(OBJS) $(LDFLAGS) $(EXTRA_FLAGS) $(LIBS) -o show_apcli_enable.elf
 

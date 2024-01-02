@@ -19,7 +19,7 @@ extern long g_bitmap_2G,g_bitmap_5G;
 char g_wds_bss[16];
 char g_apcli_ifname[16];
 
-pthread_mutex_t g_mutex,g_scan_schedule_mutex,g_finished_device_list_mutex,g_popen_mutex;
+pthread_mutex_t g_mutex,g_scan_schedule_mutex,g_finished_device_list_mutex,g_popen_mutex,g_dev_cmd_mutex;
 
 pthread_t pid1, pid2 ,pid3;
 sem_t g_semaphore;

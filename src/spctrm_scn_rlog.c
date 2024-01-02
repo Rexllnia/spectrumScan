@@ -188,9 +188,11 @@ void spctrm_scn_rlog_get_module_server_addr()
             }
 
             pthread_mutex_lock(&g_rlog_server_addr_mutex);
+            memset(g_rlog_server_addr,0,sizeof(g_rlog_server_addr));
             strncpy(g_rlog_server_addr,json_object_get_string(server_obj),len);
             pthread_mutex_unlock(&g_rlog_server_addr_mutex);
 
+            memset(sn,0,sizeof(sn));
             spctrm_scn_common_get_sn(sn);
             sprintf(g_rlog_server_addr,"%s?sn=%s",g_rlog_server_addr,sn);
             SPCTRM_SCN_DBG_FILE("%s\r\n",g_rlog_server_addr);

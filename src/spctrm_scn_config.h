@@ -19,6 +19,10 @@
 
 #define ETH_ALEN 6
 
+#define UNKNOW     0
+#define SUPPORT_5G 1
+#define SUPPORT_2G 1<<1
+
 #define MAX_DEVICE_NUM  32
 #define MAX_POPEN_BUFFER_SIZE   81920
 
@@ -37,6 +41,9 @@
 #define SUCCESS    0
 
 #define MAX_BAND_5G_CHANNEL_NUM 36
+
+#define BAND_2G 2
+#define BAND_5G 5
 
 #define PLATFORM_5G     5
 #define PLATFORM_2G     2

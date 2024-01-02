@@ -15,27 +15,19 @@ start_service() {
 }
 
 start() {
+    killall -9 spectrum_scan.elf
 
-    if [ -e /tmp/spectrum_scan/curl_pid ] ; then
-        kill -9 $(cat /tmp/spectrum_scan/curl_pid) &> /dev/null
-	    rm /tmp/spectrum_scan/curl_pid &> /dev/null
-    fi
-    killall -9 unifyframe-sgi.elf
-    /etc/init.d/unifyframe-sgi restart
     ${USR_PROC} &
+# debug code start
+# debug code end
 
     echo "spectrum_scan has start."
 }
 
 stop() {
-    killall -9 unifyframe-sgi.elf
-    /etc/init.d/unifyframe-sgi restart
+# debug code start
+# debug code end
     killall -9 spectrum_scan.elf
-
-    if [ -e /tmp/spectrum_scan/curl_pid ] ; then
-        kill -9 $(cat /tmp/spectrum_scan/curl_pid) &> /dev/null
-        rm /tmp/spectrum_scan/curl_pid &> /dev/null
-    fi
 
     echo "spectrum_scan has stopped."
 }

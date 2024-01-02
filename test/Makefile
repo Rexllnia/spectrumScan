@@ -1,14 +1,18 @@
 #编框架组件 只编译出.o 无需编译成 可执行文件
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/package.mk
-
+include $(TOPDIR)/.config
 #拓展通配符 在此意为src下所有的.c
 SRCS := $(wildcard *.c)
 LIBS := $(wildcard *.a)
 #替换符通配 就是把$(SRCS))中的所有.c替换成.o
 OBJS := $(patsubst %.c,%.o,$(SRCS))
 
-LDFLAGS +=  -L$(STAGING_DIR)/usr/lib -ljson-c -lubox -luci -lpthread -lubus -ldebug -lufplug -lunifyframe
+LDFLAGS +=  -L$(STAGING_DIR)/usr/lib -ljson-c -lubox -luci -lpthread -lubus -ldebug -lufplug -lunifyframe -llua
+ifeq ($(CONFIG_SPECTRUM_SCAN_REDBS_ENABLE),y)
+LDFLAGS += -lhiredis
+EXTRA_FLAGS += -DSPECTRUM_SCAN_REDBS_ENABLE
+endif
 
 EXECUTABLE := test
 PKG_ROOT_PATH_UF = $(STAGING_DIR)/usr/lib/ufplugins

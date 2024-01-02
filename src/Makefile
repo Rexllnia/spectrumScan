@@ -10,9 +10,12 @@ LIBS := $(wildcard *.a)
 OBJS := $(patsubst %.c,%.o,$(SRCS))
 
 LDFLAGS += -L$(STAGING_DIR)/usr/lib -ljson-c -lubox -luci -lpthread -lubus -ldebug -lufplug -lunifyframe
-ifeq ($(CONFIG_SPCTRM_SCN_REDBS_ENABLE),y)
-LDFLAGS += -lhiredis
+
+ifeq ($(CONFIG_SPECTRUM_SCAN_REDBS_ENABLE),y)
+LDFLAGS += -lhiredis -lrgproto
+EXTRA_FLAGS += -DSPECTRUM_SCAN_REDBS_ENABLE
 endif
+
 PKG_ROOT_PATH_UF = $(STAGING_DIR)/usr/lib/ufplugins
 PKG_EXEC_PATH_UF = $(STAGING_DIR)/usr/bin
 
@@ -23,8 +26,11 @@ UF_ALL_FLAGS := $(sort $(UF_ALL_FLAGS))
 
 CC += -g -fno-limit-debug-info -fsanitize=address -fno-omit-frame-pointer -fsanitize=leak 
 
-ifeq ($(CONFIG_SPECTRUM_SCAN24),y)	
-EXTRA_FLAGS:= -DSPCTRM_SCN24
+ifeq ($(CONFIG_SPECTRUM_SCAN_2G),y)	
+EXTRA_FLAGS += -DSPECTRUM_SCAN_2G
+endif
+ifeq ($(CONFIG_SPECTRUM_SCAN_5G),y)	
+EXTRA_FLAGS += -DSPECTRUM_SCAN_5G
 endif
 
 all: $(OBJS)

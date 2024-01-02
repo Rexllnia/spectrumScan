@@ -1,6 +1,6 @@
 #! /usr/bin/lua
 
-module("spectrumScan", package.seeall);  --必须要有
+-- module("spectrumScan", package.seeall);  --必须要有
 -- Load module
 local console = require "console"
 ubus = require "ubus"
@@ -78,7 +78,6 @@ function module_get(param)
     -- Establish connection
     param_tab = cjson_safe.decode(param)
     local res
-
     local conn = ubus.connect()
     if not conn then
         error("Failed to connect to ubusd")
@@ -101,7 +100,8 @@ function module_get(param)
         elseif status["status_code"] == "2" or status["status_code"] == "3" then
             config_tab = cjson_safe.encode(status)
             file_write(config_file,config_tab)
-            res = conn:call("rlog", "upload_stream",{module_name = "spectrumScan",server = "http://apidemo.rj.link/service/api/warnlog?sn=MACCEG20WJL01",data = config_tab })
+            rlog_url = file_read("/etc/spectrum_scan/rlog_server_addr.json")
+            res = conn:call("rlog", "upload_stream",{module_name = "spectrumScan",server = rlog_url,data = config_tab })
             if res == nil then
                 console.debug("spectrumScan","ubus call rlog upload_stream failed")
                 conn:close()
@@ -132,7 +132,6 @@ function module_get(param)
         elseif status["status_code"] == "2" or status["status_code"] == "3" then
             config_tab = cjson_safe.encode(status)
             file_write(config_file,config_tab)
-            rlog_url = file_read("/etc/spectrum_scan/rlog_server_addr.json")
             res = conn:call("rlog","module_enable",{module = "spectrumScan"})
             if res == nil then
                 console.debug("spectrumScan","ubus call rlog module_enable failed")
@@ -140,6 +139,7 @@ function module_get(param)
                 return console.fail("ubus call rlog module_enable failed")
             end
             if res["result"] == "1" then
+                rlog_url = file_read("/etc/spectrum_scan/rlog_server_addr.json")
                 conn:call("rlog", "upload_stream",{module_name = "spectrumScan",server = rlog_url,data = config_tab })
             end
             
